@@ -1,0 +1,19 @@
+{
+  "name": "express-stormpath-enqueuer",
+  "version": "0.1.0",
+  "description": "Ensures changes to user data don't overwrite unrelated data due to staleness.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Peekeet/express-stormpath-enqueuer.git"
+  },
+  "author": "Peekeet Ltd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Peekeet/express-stormpath-enqueuer/issues"
+  },
+  "homepage": "https://github.com/Peekeet/express-stormpath-enqueuer#readme"
+}
