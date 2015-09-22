@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Peekeet/express-stormpath-enqueuer/issues"
   },
-  "homepage": "https://github.com/Peekeet/express-stormpath-enqueuer#readme"
+  "homepage": "https://github.com/Peekeet/express-stormpath-enqueuer#readme",
+  "peerDependencies": {
+    "express-stormpath": "2.x"
+  }
 }

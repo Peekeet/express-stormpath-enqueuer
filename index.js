@@ -37,13 +37,27 @@ function executeQueue(queue, userHref, app, emitter) {
     return;
   }
 
+  var client = app.get('stormpathClient');
+
+  if (!client) {
+    app.once('stormpath.ready', function() {
+      if (queue.lock) {
+        return;
+      }
+
+      executeQueue(queue, userHref, app, emitter);
+    });
+
+    return;
+  }
+
   queue.lock = true;
 
   var options = {
     expand: 'customData',
   };
 
-  app.get('stormpathClient').getAccount(userHref, options, function(err, account) {
+  client.getAccount(userHref, options, function(err, account) {
     modifyData(userHref, account.customData, queue, emitter);
   });
 }
@@ -94,8 +108,9 @@ var enqueuer = {
   },
 
   populate: function(req, res, next) {
-    var enqueuer = req.app.get('stormpathEnqueuer');
-    enqueuer.populate(req);
+    var enq = req.app.get('stormpathEnqueuer');
+
+    enq.populate(req);
 
     next();
   }
