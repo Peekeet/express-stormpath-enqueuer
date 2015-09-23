@@ -86,7 +86,7 @@ Enqueuer.prototype = {
     req.stormpathEnqueuer = this;
   },
 
-  modifyCustomData: function modifyCustomData(accountHref, modifyCallback, doneCallback) {
+  modifyCustomData: function modifyCustomData(accountHref, callbacks) {
     var queue = this.customDataQueues[accountHref];
 
     if (!queue) {
@@ -96,10 +96,7 @@ Enqueuer.prototype = {
       this.customDataQueues[accountHref] = queue;
     }
 
-    queue.push({
-      modify: modifyCallback,
-      done:   doneCallback,
-    });
+    queue.push(callbacks);
 
     if (queue.lock) {
       return;
