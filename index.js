@@ -58,6 +58,12 @@ var executeQueue = function executeQueue(queue, accountHref, app, emitter) {
   };
 
   client.getAccount(accountHref, options, function modifyAccountData(err, account) {
+    if (err) {
+      queue.lock = false;
+
+      return executeQueue(queue, accountHref, app, emitter);
+    }
+
     modifyData(accountHref, account.customData, queue, emitter);
   });
 };
