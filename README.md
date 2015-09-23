@@ -1,6 +1,9 @@
 # express-stormpath-enqueuer
 
-> Ensures changes to user data don't overwrite unrelated data due to staleness.
+[![npm version](https://img.shields.io/npm/v/express-stormpath-enqueuer.svg?style=flat)](https://npmjs.org/package/express-stormpath-enqueuer)
+[![npm downloads](http://img.shields.io/npm/dm/express-stormpath-enqueuer.svg?style=flat)](https://npmjs.org/package/express-stormpath-enqueuer)
+
+> Ensures changes to user custom data don't overwrite unrelated data due to staleness.
 
 
 ## Installation
