@@ -10,8 +10,8 @@ var processQueue = function processQueue(queue, dataToModify) {
       atom.modify(dataToModify);
     }
 
-    if (atom.done) {
-      onCompleteCallbacks.push(atom.done);
+    if (atom.onComplete) {
+      onCompleteCallbacks.push(atom.onComplete);
     }
   }
 
