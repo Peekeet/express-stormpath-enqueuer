@@ -1,6 +1,6 @@
 {
   "name": "express-stormpath-enqueuer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Ensures changes to user data don't overwrite unrelated data due to staleness.",
   "main": "index.js",
   "scripts": {
