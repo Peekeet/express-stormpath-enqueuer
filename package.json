@@ -18,5 +18,8 @@
   "homepage": "https://github.com/Peekeet/express-stormpath-enqueuer#readme",
   "peerDependencies": {
     "express-stormpath": "2.x"
+  },
+  "devDependencies": {
+    "js-style": "github:erbridge/js-style"
   }
 }

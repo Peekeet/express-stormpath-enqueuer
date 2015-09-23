@@ -1,7 +1,7 @@
 var events = require('events');
 
-function processQueue(queue, dataToModify) {
-  var doneCallbacks = [];
+var processQueue = function processQueue(queue, dataToModify) {
+  var onCompleteCallbacks = [];
 
   while (queue.length) {
     var atom = queue.shift();
@@ -11,28 +11,28 @@ function processQueue(queue, dataToModify) {
     }
 
     if (atom.done) {
-      doneCallbacks.push(atom.done);
+      onCompleteCallbacks.push(atom.done);
     }
   }
 
-  return doneCallbacks;
-}
+  return onCompleteCallbacks;
+};
 
-function modifyData(userHref, dataToModify, queue, emitter) {
-  var doneCallbacks = processQueue(queue, dataToModify);
+var modifyData = function modifyData(accountHref, dataToModify, queue, emitter) {
+  var onCompleteCallbacks = processQueue(queue, dataToModify);
 
-  dataToModify.save(function(err, user) {
-    doneCallbacks.forEach(function(callback) {
-      callback(err, user);
+  dataToModify.save(function finishSaving(err, account) {
+    onCompleteCallbacks.forEach(function executeCallback(callback) {
+      callback(err, account);
     });
 
     queue.lock = false;
 
-    emitter.emit('doneSaving', userHref);
+    emitter.emit('doneSaving', accountHref);
   });
-}
+};
 
-function executeQueue(queue, userHref, app, emitter) {
+var executeQueue = function executeQueue(queue, accountHref, app, emitter) {
   if (!queue.length) {
     return;
   }
@@ -40,12 +40,12 @@ function executeQueue(queue, userHref, app, emitter) {
   var client = app.get('stormpathClient');
 
   if (!client) {
-    app.once('stormpath.ready', function() {
+    app.once('stormpath.ready', function retryExecuteQueue() {
       if (queue.lock) {
         return;
       }
 
-      executeQueue(queue, userHref, app, emitter);
+      executeQueue(queue, accountHref, app, emitter);
     });
 
     return;
@@ -57,17 +57,17 @@ function executeQueue(queue, userHref, app, emitter) {
     expand: 'customData',
   };
 
-  client.getAccount(userHref, options, function(err, account) {
-    modifyData(userHref, account.customData, queue, emitter);
+  client.getAccount(accountHref, options, function modifyAccountData(err, account) {
+    modifyData(accountHref, account.customData, queue, emitter);
   });
-}
+};
 
-var Enqueuer = function(app) {
+var Enqueuer = function newEnqueuer(app) {
   var customDataQueues = {};
   var emitter = new events.EventEmitter();
 
-  emitter.on('doneSaving', function(userHref) {
-    executeQueue(customDataQueues[userHref], userHref, app, emitter);
+  emitter.on('doneSaving', function executeAccountQueue(accountHref) {
+    executeQueue(customDataQueues[accountHref], accountHref, app, emitter);
   });
 
   this.customDataQueues = customDataQueues;
@@ -76,17 +76,18 @@ var Enqueuer = function(app) {
 };
 
 Enqueuer.prototype = {
-  populate: function(req) {
+  populate: function populate(req) {
     req.stormpathEnqueuer = this;
   },
 
-  modifyCustomData: function(userHref, modifyCallback, doneCallback) {
-    var queue = this.customDataQueues[userHref];
+  modifyCustomData: function modifyCustomData(accountHref, modifyCallback, doneCallback) {
+    var queue = this.customDataQueues[accountHref];
+
     if (!queue) {
       queue = [];
       queue.lock = false;
 
-      this.customDataQueues[userHref] = queue;
+      this.customDataQueues[accountHref] = queue;
     }
 
     queue.push({
@@ -98,22 +99,22 @@ Enqueuer.prototype = {
       return;
     }
 
-    executeQueue(queue, userHref, this.app, this.emitter);
+    executeQueue(queue, accountHref, this.app, this.emitter);
   },
 };
 
 var enqueuer = {
-  init: function(app) {
+  init: function init(app) {
     app.set('stormpathEnqueuer', new Enqueuer(app));
   },
 
-  populate: function(req, res, next) {
+  populate: function populate(req, res, next) {
     var enq = req.app.get('stormpathEnqueuer');
 
     enq.populate(req);
 
     next();
-  }
+  },
 };
 
 module.exports = enqueuer;
