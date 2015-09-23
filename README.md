@@ -37,15 +37,16 @@ app.use(stormpath.loginRequired);
 app.use(stormpathEnqueuer.populate);
 
 app.get('/', function(req, res, next) {
-  req.stormpathEnqueuer.modifyCustomData(
-    req.user.href,
-    function modify(customData) {
+  var callbacks = {
+    modify: function(customData) {
       customData.myProperty = 'something useful';
     },
-    function done() {
+    onComplete: function(err, customData) {
       console.log('DONE');
       next();
     }
-  );
+  }
+
+  req.stormpathEnqueuer.modifyCustomData(req.user.href, callbacks);
 });
 ```
